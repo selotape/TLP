@@ -1,5 +1,6 @@
 import argparse
 import os
+from typing import List
 
 import httplib2
 from apiclient import discovery
@@ -43,15 +44,37 @@ def get_credentials():
     return credentials
 
 
-def main():
-    """Shows basic usage of the Gmail API.
+def print_unread():
+    service = get_service()
+    messages_service = service.users().messages()
+    results = messages_service.list(userId='me', q='is:unread').execute()
+    unread_messages = results.get('messages', [])  # type: : List[dict]
+    unread_ids = [msg['id'] for msg in unread_messages]
+    for id_ in unread_ids:
+        msg = messages_service.get(userId='me', id=id_).execute()
+        print(msg)
 
-    Creates a Gmail API service object and outputs a list of label names
-    of the user's Gmail account.
-    """
+
+
+def get_service():
+    """Creates a Gmail API service """
     credentials = get_credentials()
     http = credentials.authorize(httplib2.Http())
-    service = discovery.build('gmail', 'v1', http=http)
+    return discovery.build('gmail', 'v1', http=http)
+
+
+def main1():
+    print_unread()
+
+def main2():
+    """
+    outputs a list of label names
+    of the user's Gmail account.
+    """
+
+    service = get_service()
+
+
 
     results = service.users().labels().list(userId='me').execute()
     labels = results.get('labels', [])
@@ -65,4 +88,4 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    main1()
