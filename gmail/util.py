@@ -1,6 +1,7 @@
 import argparse
+import base64
 import os
-from typing import List
+from email.mime.text import MIMEText
 
 import httplib2
 from apiclient import discovery
@@ -36,24 +37,49 @@ def get_credentials():
     if not credentials or credentials.invalid:
         flow = client.flow_from_clientsecrets(CLIENT_SECRET_FILE, SCOPES)
         flow.user_agent = APPLICATION_NAME
-        if flags:
-            credentials = tools.run_flow(flow, store, flags)
-        else:  # Needed only for compatibility with Python 2.6
-            credentials = tools.run(flow, store)
+        credentials = tools.run_flow(flow, store, flags)
         print('Storing credentials to ' + credential_path)
     return credentials
 
 
-def print_unread():
-    service = get_service()
-    messages_service = service.users().messages()
-    results = messages_service.list(userId='me', q='is:unread').execute()
-    unread_messages = results.get('messages', [])  # type: : List[dict]
-    unread_ids = [msg['id'] for msg in unread_messages]
-    for id_ in unread_ids:
-        msg = messages_service.get(userId='me', id=id_).execute()
-        print(msg)
+def create_message(sender, to, subject, message_text):
+    """Create a message for an email.
 
+    Args:
+    sender: Email address of the sender.
+    to: Email address of the receiver.
+    subject: The subject of the email message.
+    message_text: The text of the email message.
+
+    Returns:
+    An object containing a base64url encoded email object.
+    """
+    message = MIMEText(message_text)
+    message['to'] = to
+    message['from'] = sender
+    message['subject'] = subject
+
+
+
+def send_message(service, user_id, message):
+    """Send an email message.
+
+    Args:
+      service: Authorized Gmail API service instance.
+      user_id: User's email address. The special value "me"
+      can be used to indicate the authenticated user.
+      message: Message to be sent.
+
+    Returns:
+      Sent Message.
+    """
+    try:
+        message = (service.users().messages().send(userId=user_id, body=message)
+                   .execute())
+        print('Message Id: %s' % message['id'])
+        return message
+    except Exception as error:
+        print('An error occurred: %s' % error)
 
 
 def get_service():
@@ -61,31 +87,3 @@ def get_service():
     credentials = get_credentials()
     http = credentials.authorize(httplib2.Http())
     return discovery.build('gmail', 'v1', http=http)
-
-
-def main1():
-    print_unread()
-
-def main2():
-    """
-    outputs a list of label names
-    of the user's Gmail account.
-    """
-
-    service = get_service()
-
-
-
-    results = service.users().labels().list(userId='me').execute()
-    labels = results.get('labels', [])
-
-    if not labels:
-        print('No labels found.')
-    else:
-        print('Labels:')
-        for label in labels:
-            print(label['name'])
-
-
-if __name__ == '__main__':
-    main1()
