@@ -1,9 +1,9 @@
-from flask import Flask, redirect, url_for, session, jsonify, json
+import random
+
+from flask import Flask, redirect, url_for, session, jsonify
 from flask_oauthlib.client import OAuth
 
 from google.oauth import google_secrets
-
-import random
 
 app = Flask(__name__)
 app.config['GOOGLE_ID'] = google_secrets.CLIENT_ID
@@ -27,6 +27,7 @@ google = oauth.remote_app(
 )
 
 unauthorized_error_messages = ['WTF you doing here??']
+signed_in_messages = ['All done. Now run along.']
 
 
 @app.route('/')
@@ -52,10 +53,11 @@ def logout():
 def authorized():
     resp = google.authorized_response()
     if resp is None:
-        return json.dumps({'html': '<span>{}</span>'.format(random.choice(unauthorized_error_messages))})
+        return '<span>{}</span>'.format(random.choice(unauthorized_error_messages))
     session['google_token'] = (resp['access_token'], '')
-    me = google.get('userinfo')
-    return jsonify({"data": me.data})
+    user_google_info = google.get('userinfo')
+    print(user_google_info.data)
+    return '<span>{}</span>'.format(random.choice(signed_in_messages))
 
 
 @google.tokengetter
