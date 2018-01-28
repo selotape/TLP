@@ -1,2 +1,7 @@
 .idea
-gmail/client_secret.json
+client_secret.json
+storage.json
+*.secret
+
+.cache
+__pycache__

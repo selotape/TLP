@@ -1,4 +1,5 @@
 httplib2
 google-api-python-client
-flask
-werkzeug
+beautifulsoup4
+python-dateutil
+pytest
