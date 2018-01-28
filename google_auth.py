@@ -1,10 +1,10 @@
 from flask import Flask, redirect, url_for, session, request, jsonify
 from flask_oauthlib.client import OAuth
-import google_secret
+import google_secrets
 
 app = Flask(__name__)
-app.config['GOOGLE_ID'] = google_secret.CLIENT_ID
-app.config['GOOGLE_SECRET'] = google_secret.CLIENT_SECRET
+app.config['GOOGLE_ID'] = google_secrets.CLIENT_ID
+app.config['GOOGLE_SECRET'] = google_secrets.CLIENT_SECRET
 app.debug = True
 app.secret_key = 'development'
 oauth = OAuth(app)
