@@ -3,3 +3,5 @@ google-api-python-client
 beautifulsoup4
 python-dateutil
 pytest
+flask
+flask_oauthlib

@@ -1,7 +1,7 @@
 .idea
 client_secret.json
 storage.json
-*.secret
+*secret*
 
 .cache
 __pycache__
