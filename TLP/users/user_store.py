@@ -1,5 +1,7 @@
+from datetime import datetime
+
 from boltons.iterutils import chunked
-from sqlalchemy import Column, String, Boolean
+from sqlalchemy import Column, String, Boolean, Date
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, Session, Query
@@ -15,8 +17,7 @@ class UserStore:
         _Base.metadata.create_all(engine)
 
     def put_user(self, name, email):
-        user = User(name=name, email=email, _active=True)
-        self._session.add(user)
+        self._put_or_update(name, email)
 
     def get_parties(self, size):
         query: Query = self._session.query(User).filter_by(_active=True)
@@ -28,12 +29,23 @@ class UserStore:
 
     @staticmethod
     def _chunk(active_users, size):
-        extra_count = len(active_users) % size
-        extra_users = active_users[-extra_count:]
-        chunked_users = chunked(active_users[:-extra_count], size)
-        for i, user in enumerate(extra_users):
+        chunked_users = chunked(active_users, size)
+        if len(chunked_users) <= 1 or chunked_users[-1] == size:
+            return chunked_users
+
+        chunked_users, last_chunk = chunked_users[:-1], chunked_users[-1]
+        for i, user in enumerate(last_chunk):
             chunked_users[i].append(user)
         return chunked_users
+
+    def _put_or_update(self, name, email):
+        user = self._session.query(User).filter_by(email=email).first()
+        if not user:
+            user = User(email=email, name=name)
+            self._session.add(user)
+        else:
+            user.latest_touched = datetime.now()
+            user._active = True
 
 
 class User(_Base):
@@ -41,7 +53,8 @@ class User(_Base):
 
     email = Column(String(100), primary_key=True)
     name = Column(String(100))
-    _active = Column(Boolean)
+    latest_touched = Column(Date(), default=datetime.now())
+    _active = Column(Boolean, default=True)
 
     def __repr__(self):
         return f"<User(name='{self.name}', email='{self.email}', active='{self._active}')>"
