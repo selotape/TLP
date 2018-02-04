@@ -5,3 +5,5 @@ python-dateutil
 pytest
 flask
 flask_oauthlib
+sqlalchemy
+boltons
