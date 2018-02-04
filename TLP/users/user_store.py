@@ -15,17 +15,14 @@ class UserStore:
         _Base.metadata.create_all(engine)
 
     def put_user(self, name, email):
-
         user = User(name=name, email=email, _active=True)
         self._session.add(user)
 
     def get_parties(self, size):
-        # query: Query = session.query(User).filter_by(_active=True)
-        query: Query = self._session.query(User)
+        query: Query = self._session.query(User).filter_by(_active=True)
         active_users = query.all()
         for user in active_users:
             user._active = False
-        self._session.add_all(active_users)
 
         return self._chunk(active_users, size)
 
