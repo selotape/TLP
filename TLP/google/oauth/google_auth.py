@@ -3,7 +3,7 @@ import random
 from flask import Flask, redirect, url_for, session, jsonify
 from flask_oauthlib.client import OAuth
 
-from google.oauth import google_secrets
+from TLP.google.oauth import google_secrets
 
 app = Flask(__name__)
 app.config['GOOGLE_ID'] = google_secrets.CLIENT_ID
