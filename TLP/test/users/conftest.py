@@ -1,8 +1,8 @@
 import pytest
 
-from TLP.users import UserStore
+from TLP.users import _UserStore
 
 
 @pytest.fixture
 def user_store():
-    return UserStore()
+    return _UserStore()

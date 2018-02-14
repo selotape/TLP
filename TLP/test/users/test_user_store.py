@@ -1,9 +1,9 @@
 import string
 
-from TLP.users import UserStore
+from TLP.users import _UserStore
 
 
-def test_party_partitioning(user_store: UserStore):
+def test_party_partitioning(user_store: _UserStore):
     users = list(string.ascii_lowercase)
     for user in users:
         user_store.put_user(user, user)
@@ -16,7 +16,7 @@ def test_party_partitioning(user_store: UserStore):
     assert all(party_size <= len_ <= party_size + 1 for len_ in len_parties)
 
 
-def test_add_same_user_twice(user_store: UserStore):
+def test_add_same_user_twice(user_store: _UserStore):
     user_store.put_user('ron', 'vis')
     user_store.put_user('ron', 'vis')
     user_store.put_user('ron', 'vis')
@@ -26,7 +26,7 @@ def test_add_same_user_twice(user_store: UserStore):
     assert len(parties[0]) == 1
 
 
-def test_user_store_removes_usedup_users(user_store: UserStore):
+def test_user_store_removes_usedup_users(user_store: _UserStore):
     users = list(string.ascii_lowercase)
     for user in users:
         user_store.put_user(user, user)

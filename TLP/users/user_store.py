@@ -6,10 +6,12 @@ from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, Session, Query
 
+from TLP.util import Singleton
+
 _Base = declarative_base()
 
 
-class UserStore:
+class _UserStore(metaclass=Singleton):
     def __init__(self):
         engine = create_engine('sqlite:///:memory:')
         self._sessionmaker = sessionmaker(bind=engine, autocommit=True)
@@ -58,3 +60,6 @@ class User(_Base):
 
     def __repr__(self):
         return f"<User(name='{self.name}', email='{self.email}', active='{self._active}')>"
+
+
+user_store = _UserStore()
