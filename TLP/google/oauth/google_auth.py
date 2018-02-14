@@ -1,9 +1,13 @@
+import logging
 import random
+from io import StringIO
+from pprint import pprint
 
-from flask import Flask, redirect, url_for, session, jsonify
-from flask_oauthlib.client import OAuth
+from flask import Flask, redirect, url_for, session
+from flask_oauthlib.client import OAuth, OAuthException
 
 from TLP.google.oauth import google_secrets
+from TLP.users import user_store
 
 app = Flask(__name__)
 app.config['GOOGLE_ID'] = google_secrets.CLIENT_ID
@@ -29,41 +33,49 @@ google = oauth.remote_app(
 unauthorized_error_messages = ['WTF you doing here??']
 signed_in_messages = ['All done. Now run along.']
 
+log = logging.getLogger(__name__)
+
 
 @app.route('/')
-def index():
-    if 'google_token' in session:
-        me = google.get('userinfo')
-        return jsonify({"data": me.data})
-    return redirect(url_for('login'))
-
-
 @app.route('/login')
 def login():
     return google.authorize(callback=url_for('authorized', _external=True))
 
 
-@app.route('/logout')
-def logout():
-    session.pop('google_token', None)
-    return redirect(url_for('index'))
-
-
 @app.route('/login/authorized')
 def authorized():
-    resp = google.authorized_response()
-    if resp is None:
-        return '<span>{}</span>'.format(random.choice(unauthorized_error_messages))
-    session['google_token'] = (resp['access_token'], '')
+    try:
+        resp = google.authorized_response()
+        if resp is None:
+            return redirect(url_for('login'))
+        session['google_token'] = (resp['access_token'], '')
+    except OAuthException as e:
+        if 'already redeemed' not in e.data['error_description']:
+            return redirect(url_for('login'))
+
     user_google_info = google.get('userinfo')
-    print(user_google_info.data)
+    user_store.put_user("noname", user_google_info.data['email'])
+    log.info(user_google_info.data)
     return '<span>{}</span>'.format(random.choice(signed_in_messages))
+
+
+@app.route('/get_parties')
+def get_parties():
+    if 'google_token' not in session:
+        return redirect(url_for('login'))
+    parties = user_store.get_parties(4)
+    formatted_parties = StringIO()
+    pprint(parties, stream=formatted_parties)
+    return '<span>parties: <text>{}</text></span>'.format(str(parties))
+
+
+@app.route('/logout')
+@app.route('/signout')
+def logout():
+    session.pop('google_token', None)
+    return redirect(url_for('login'))
 
 
 @google.tokengetter
 def get_google_oauth_token():
     return session.get('google_token')
-
-
-if __name__ == '__main__':
-    app.run()
