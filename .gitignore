@@ -5,3 +5,5 @@ storage.json
 
 .cache
 __pycache__
+*.log
+*.db
