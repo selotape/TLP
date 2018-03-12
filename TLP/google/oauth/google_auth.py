@@ -55,7 +55,7 @@ def login():
 def authorized():
     time = datetime_in_israel().strftime('%H%M')
     if time > '1130':
-        return jsonify({'message': f"Sorry, we're closed for today. Please come back tomorrow!"})
+        return jsonify({'message': f"Sorry, TLP is closed for today. Do come back tomorrow!"})
 
     try:
         resp = google.authorized_response()
@@ -69,7 +69,7 @@ def authorized():
     user_google_info = google.get('userinfo')
     user_store.put_or_update(None, user_google_info.data['email'])
     _log.info(user_google_info.data)
-    return jsonify({'message': f"You're in! Come back in {seconds_till_eleven_thirty()} seconds to check out results."})
+    return jsonify({'message': f"You're signed in! Come back in {seconds_till_eleven_thirty()} seconds to check out results."})
 
 
 @app.route('/logout')
