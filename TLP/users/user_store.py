@@ -13,17 +13,13 @@ _sessionmaker = sessionmaker(bind=_engine, autocommit=True)
 _session: Session = _sessionmaker()
 
 
-def put_user(name, email):
-    _put_or_update(name, email)
-
-
 def get_parties(size):
     query: Query = _session.query(User).filter_by(_active=True)
     active_users = query.all()
     for user in active_users:
         user._active = False
 
-    return _chunk_users(active_users, size)
+    return _chunk_users((repr(u) for u in active_users), size)
 
 
 def _chunk_users(active_users, size):
@@ -37,7 +33,10 @@ def _chunk_users(active_users, size):
     return chunked_users
 
 
-def _put_or_update(name, email):
+def put_or_update(name: str, email: str):
+    if not name:
+        name = email.split('@')[0]
+
     user = _session.query(User).filter_by(email=email).first()
     if not user:
         user = User(email=email, name=name)
@@ -56,7 +55,7 @@ class User(_Base):
     _active = Column(Boolean, default=True)
 
     def __repr__(self):
-        return f"({self.name}, {self.email})"
+        return f'({self.name}, {self.email})'
 
 
 def bootstrap():

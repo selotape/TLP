@@ -1,13 +1,11 @@
 import logging
-import random
-from io import StringIO
-from pprint import pprint
 
-from flask import Flask, redirect, url_for, session
+from flask import Flask, redirect, url_for, session, jsonify
 from flask_oauthlib.client import OAuth, OAuthException
 
 from TLP.google.oauth import google_secrets
 from TLP.users import user_store
+from TLP.util import datetime_in_israel, day_cache, seconds_till_eleven_thirty
 
 app = Flask(__name__)
 app.config['GOOGLE_ID'] = google_secrets.CLIENT_ID
@@ -37,6 +35,19 @@ log = logging.getLogger(__name__)
 
 
 @app.route('/')
+def root():
+    time = datetime_in_israel().strftime('%H%M')
+    if time < '1130' or 'google_token' not in session:
+        return redirect(url_for('login'))
+    else:
+        return jsonify({"today\'s_parties": {i: party for i, party in enumerate(_get_parties(), start=1)}})
+
+
+@day_cache
+def _get_parties():
+    return user_store.get_parties(size=4)
+
+
 @app.route('/login')
 def login():
     return google.authorize(callback=url_for('authorized', _external=True))
@@ -44,29 +55,23 @@ def login():
 
 @app.route('/login/authorized')
 def authorized():
+    time = datetime_in_israel().strftime('%H%M')
+    if time > '1130':
+        return jsonify({'message': f"Sorry, we're closed for today. Please come back tomorrow!"})
+
     try:
         resp = google.authorized_response()
         if resp is None:
             return redirect(url_for('login'))
         session['google_token'] = (resp['access_token'], '')
     except OAuthException as e:
-        if 'already redeemed' not in e.data['error_description']:
+        if not session.get('google_token') and 'already redeemed' not in e.data.get('error_description', {}):
             return redirect(url_for('login'))
 
     user_google_info = google.get('userinfo')
-    user_store.put_user("noname", user_google_info.data['email'])
+    user_store.put_or_update(None, user_google_info.data['email'])
     log.info(user_google_info.data)
-    return '<span>{}</span>'.format(random.choice(signed_in_messages))
-
-
-@app.route('/get_parties')
-def get_parties():
-    if 'google_token' not in session:
-        return redirect(url_for('login'))
-    parties = user_store.get_parties(4)
-    formatted_parties = StringIO()
-    pprint(parties, stream=formatted_parties)
-    return '<span>parties: <text>{}</text></span>'.format(str(parties))
+    return jsonify({'message': f"You're in! Come back in {seconds_till_eleven_thirty()} seconds to check out results."})
 
 
 @app.route('/logout')
