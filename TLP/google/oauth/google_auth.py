@@ -5,7 +5,8 @@ from flask_oauthlib.client import OAuth, OAuthException
 
 from TLP.google.oauth import google_secrets
 from TLP.users import user_store
-from TLP.util import datetime_in_israel, day_cache, seconds_till_eleven_thirty
+from TLP.util import day_cache
+from TLP.util.time import datetime_in_israel, seconds_till_eleven_thirty
 
 app = Flask(__name__)
 app.config['GOOGLE_ID'] = google_secrets.CLIENT_ID
@@ -28,10 +29,7 @@ google = oauth.remote_app(
     authorize_url='https://accounts.google.com/o/oauth2/auth',
 )
 
-unauthorized_error_messages = ['WTF you doing here??']
-signed_in_messages = ['All done. Now run along.']
-
-log = logging.getLogger(__name__)
+_log = logging.getLogger(__name__)
 
 
 @app.route('/')
@@ -70,7 +68,7 @@ def authorized():
 
     user_google_info = google.get('userinfo')
     user_store.put_or_update(None, user_google_info.data['email'])
-    log.info(user_google_info.data)
+    _log.info(user_google_info.data)
     return jsonify({'message': f"You're in! Come back in {seconds_till_eleven_thirty()} seconds to check out results."})
 
 
