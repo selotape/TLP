@@ -1,4 +1,5 @@
 from datetime import datetime
+from typing import Optional
 
 from boltons.iterutils import chunked
 from sqlalchemy import Column, String, Boolean, Date
@@ -33,7 +34,7 @@ def _chunk_users(active_users, size):
     return chunked_users
 
 
-def put_or_update(name: str, email: str):
+def put_or_update(name: Optional(str), email: str):
     if not name:
         name = email.split('@')[0]
 
