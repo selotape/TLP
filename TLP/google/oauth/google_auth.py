@@ -3,10 +3,10 @@ import logging
 from flask import Flask, redirect, url_for, session, jsonify
 from flask_oauthlib.client import OAuth, OAuthException
 
-from TLP.configuration import LUNCH_TIME
+from TLP.configuration import LUNCH_TIME, POST_LUNCH_TIME, PARTY_SIZE
 from TLP.users import user_store
 from TLP.util import day_cache
-from TLP.util.time import datetime_in_israel, seconds_till_lunch_time
+from TLP.util.time import datetime_in_israel
 
 _log = logging.getLogger(__name__)
 
@@ -14,6 +14,7 @@ try:
     from TLP.google.oauth import google_secrets
 except ImportError:
     _log.fatal("No google secrets configuration. See install manual!")
+    google_secrets = None
     exit(-1)
 
 app = Flask(__name__)
@@ -41,15 +42,20 @@ google = oauth.remote_app(
 @app.route('/')
 def root():
     time = datetime_in_israel().strftime('%H:%M')
-    if time < LUNCH_TIME or 'google_token' not in session:
-        return redirect(url_for('login'))
+    if LUNCH_TIME < time < POST_LUNCH_TIME:
+        return jsonify({"TLP_parties": {i: party for i, party in enumerate(_get_parties(), start=1)},
+                        "message": f"Come back again tomorrow before {LUNCH_TIME}!"})
+    elif time > POST_LUNCH_TIME:
+        return jsonify({'message': f"Sorry, TLP is closed for today. Come back tomorrow before {LUNCH_TIME}!"})
+    elif 'google_token' in session:
+        return jsonify({'message': f"TLPs team of highly trained monkeys has been dispatched to process your request.\nCome back at {LUNCH_TIME} for results!"})
     else:
-        return jsonify({"today\'s_parties": {i: party for i, party in enumerate(_get_parties(), start=1)}})
+        return redirect(url_for('login'))
 
 
 @day_cache
 def _get_parties():
-    return user_store.get_parties(size=4)
+    return user_store.get_parties(size=PARTY_SIZE)
 
 
 @app.route('/login')
@@ -59,10 +65,6 @@ def login():
 
 @app.route('/login/authorized')
 def authorized():
-    time = datetime_in_israel().strftime('%H:%M')
-    if time > LUNCH_TIME:
-        return jsonify({'message': f"Sorry, TLP is closed for today. Come back tomorrow before {LUNCH_TIME}!"})
-
     try:
         resp = google.authorized_response()
         if resp is None:
@@ -75,7 +77,7 @@ def authorized():
     user_google_info = google.get('userinfo')
     user_store.put_or_update(None, user_google_info.data['email'])
     _log.info(user_google_info.data)
-    return jsonify({'message': f"You're signed in! Come back in {seconds_till_lunch_time()} seconds to check out results."})
+    return redirect(url_for('root'))
 
 
 @app.route('/logout')
