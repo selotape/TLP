@@ -9,4 +9,4 @@ if __name__ == '__main__':
         fileConfig(LOGGING_CONFIG)
     except KeyError as e:
         print(f"Couldn't locate the {LOGGING_CONFIG} file")
-    app.run(debug=True)
+    app.run(host='0.0.0.0', debug=True)
