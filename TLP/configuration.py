@@ -1,6 +1,6 @@
 ### Infra
 DB_FILE = '.users.db'
-FLASK_PORT = '5000'
+FLASK_PORT = 5000
 
 ### All about Lunch
 PARTY_SIZE = 4
