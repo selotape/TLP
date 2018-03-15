@@ -1,12 +1,15 @@
-.idea
-
 storage.json
 *secret*
 
-.cache
-__pycache__
 *.log
 *.db
+
+
+.idea
+
+.cache
+*.pyc
+__pycache__
 
 Pipfile
 Pipfile.lock
