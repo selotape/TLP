@@ -1,7 +1,7 @@
 from logging.config import fileConfig
 
 from TLP.configuration import FLASK_PORT
-from TLP.google.oauth.google_auth import app
+from TLP.web import app
 
 LOGGING_CONFIG = './logging_config.ini'
 
