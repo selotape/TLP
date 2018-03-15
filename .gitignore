@@ -11,5 +11,4 @@ storage.json
 *.pyc
 __pycache__
 
-Pipfile
 Pipfile.lock
