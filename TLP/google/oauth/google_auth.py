@@ -3,7 +3,7 @@ import logging
 from flask import Flask, redirect, url_for, session, jsonify
 from flask_oauthlib.client import OAuth, OAuthException
 
-from TLP.configuration import *
+from TLP.configuration import LUNCH_TIME
 from TLP.users import user_store
 from TLP.util import day_cache
 from TLP.util.time import datetime_in_israel, seconds_till_lunch_time
