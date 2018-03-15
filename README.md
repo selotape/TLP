@@ -13,10 +13,12 @@ I'll tell you all about it when it's good and ready!
 5. `cd TLP`
 6. Create pipenv - `pipenv install -r requirements.txt`
 6. Activate pipenv - `pipenv shell`
+6. Setup Oauth - https://console.developers.google.com/apis/credentials/oauthclient
 6. Place secrets configuration in `TLP/google/oauth/google_secrets.py`
 7. Run! `PYTHONPATH=. python` 
  
 
 ## TODO:
+* add configuration
 * Use flask-sqlalchemy
 * Rewrite Json api to Gmail push notifications
