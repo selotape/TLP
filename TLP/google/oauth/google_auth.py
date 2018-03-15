@@ -3,10 +3,17 @@ import logging
 from flask import Flask, redirect, url_for, session, jsonify
 from flask_oauthlib.client import OAuth, OAuthException
 
-from TLP.google.oauth import google_secrets
 from TLP.users import user_store
 from TLP.util import day_cache
 from TLP.util.time import datetime_in_israel, seconds_till_eleven_thirty
+
+_log = logging.getLogger(__name__)
+
+try:
+    from TLP.google.oauth import google_secrets
+except ImportError:
+    _log.fatal("No google secrets configuration. See install manual!")
+    exit(-1)
 
 app = Flask(__name__)
 app.config['GOOGLE_ID'] = google_secrets.CLIENT_ID
@@ -28,8 +35,6 @@ google = oauth.remote_app(
     access_token_url='https://accounts.google.com/o/oauth2/token',
     authorize_url='https://accounts.google.com/o/oauth2/auth',
 )
-
-_log = logging.getLogger(__name__)
 
 
 @app.route('/')
