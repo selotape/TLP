@@ -17,12 +17,12 @@ _log = logging.getLogger(__name__)
 def root():
     time = datetime_in_israel().strftime('%H:%M')
     if LUNCH_TIME < time < POST_LUNCH_TIME:
-        return jsonify({"TLP_parties": {i: party for i, party in enumerate(_get_parties(), start=1)},
+        return jsonify({"TLP_parties": _get_parties(),
                         "message": f"Come back again tomorrow before {LUNCH_TIME}!"})
     elif time > POST_LUNCH_TIME:
         return jsonify({'message': f"Sorry, TLP is closed for today. Come back tomorrow before {LUNCH_TIME}!"})
     elif 'google_token' in session:
-        return jsonify({'message': f"TLPs team of highly trained monkeys has been dispatched to process your request.\nCome back at {LUNCH_TIME} for results!"})
+        return jsonify({'message': f"We've dispatched a team of highly trained monkeys to process your request. Come back at {LUNCH_TIME} for results!"})
     else:
         return redirect(url_for('login'))
 
@@ -49,7 +49,8 @@ def authorized():
             return redirect(url_for('login'))
 
     user_google_info = google.get('userinfo')
-    user_store.put_or_update(None, user_google_info.data['email'])
+    email = user_google_info.data['email']
+    user_store.put_or_update(None, email)
     _log.info(user_google_info.data)
     return redirect(url_for('root'))
 
