@@ -1,7 +1,6 @@
 import logging
 from datetime import datetime
 
-import pytz
 import wrapt
 from frozendict import frozendict
 
