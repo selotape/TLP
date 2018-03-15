@@ -40,7 +40,7 @@ google = oauth.remote_app(
 
 @app.route('/')
 def root():
-    time = datetime_in_israel().strftime('%H%M')
+    time = datetime_in_israel().strftime('%H:%M')
     if time < LUNCH_TIME or 'google_token' not in session:
         return redirect(url_for('login'))
     else:
@@ -59,9 +59,9 @@ def login():
 
 @app.route('/login/authorized')
 def authorized():
-    time = datetime_in_israel().strftime('%H%M')
+    time = datetime_in_israel().strftime('%H:%M')
     if time > LUNCH_TIME:
-        return jsonify({'message': f"Sorry, TLP is closed for today. Do come back tomorrow!"})
+        return jsonify({'message': f"Sorry, TLP is closed for today. Come back tomorrow before {LUNCH_TIME}!"})
 
     try:
         resp = google.authorized_response()

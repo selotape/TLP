@@ -7,9 +7,11 @@ from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, Session, Query
 
+from TLP.configuration import *
+
 _Base = declarative_base()
 
-_engine = create_engine('sqlite:///.users.db')
+_engine = create_engine(f'sqlite:///{DB_FILE}')
 _sessionmaker = sessionmaker(bind=_engine, autocommit=True)
 _session: Session = _sessionmaker()
 
