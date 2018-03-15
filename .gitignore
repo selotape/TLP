@@ -7,3 +7,6 @@ storage.json
 __pycache__
 *.log
 *.db
+
+Pipfile
+Pipfile.lock
