@@ -1,0 +1,30 @@
+[[source]]
+
+url = "https://pypi.python.org/simple"
+verify_ssl = true
+name = "pypi"
+
+
+[packages]
+
+pytz = "*"
+frozendict = "*"
+"httplib2" = "*"
+google-api-python-client = "*"
+"beautifulsoup4" = "*"
+python-dateutil = "*"
+pytest = "*"
+Flask = "*"
+Flask-OAuthlib = "*"
+SQLAlchemy = "*"
+boltons = "*"
+wrapt = "*"
+
+
+[dev-packages]
+
+
+
+[requires]
+
+python_version = "3.6"
