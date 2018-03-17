@@ -16,3 +16,7 @@ def seconds_till_lunch_time():
     hour, minute = LUNCH_TIME.split(":")
     lunch_time = jerusalem_timezone.localize(datetime(now.year, now.month, now.day, hour, minute))
     return (lunch_time - now).total_seconds()
+
+
+def today():
+    return datetime.now().date()

@@ -1,7 +1,12 @@
 from flask import Flask
 
-app = Flask(__name__)
-app.debug = True
-app.secret_key = 'development'
 
+def create_app():
+    application = Flask(__name__)
+    application.debug = True
+    application.secret_key = 'development'
+    return application
+
+
+app = create_app()
 from TLP.web import views

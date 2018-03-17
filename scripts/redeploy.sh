@@ -6,6 +6,6 @@ git stash
 git pull
 git stash pop
 pipenv shell
-PYTHONPATH=. python TLP &
+sudo PYTHONPATH=. python TLP &
 
 popd

@@ -2,7 +2,19 @@ import logging
 from datetime import datetime
 
 import wrapt
+from boltons.iterutils import chunked
 from frozendict import frozendict
+
+
+def polite_chunk(todays_users, size):
+    chunked_users = chunked(todays_users, size)
+    if len(chunked_users) <= 1 or chunked_users[-1] == size:
+        return chunked_users
+
+    chunked_users, last_chunk = chunked_users[:-1], chunked_users[-1]
+    for i, user in enumerate(last_chunk):
+        chunked_users[i].append(user)
+    return chunked_users
 
 
 class Singleton(type):

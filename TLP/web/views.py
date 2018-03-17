@@ -50,14 +50,15 @@ def authorized():
 
     user_google_info = google.get('userinfo')
     email = user_google_info.data['email']
-    user_store.put_or_update(None, email)
-    _log.info(user_google_info.data)
+    name = email.split('@')[0]
+    user_store.register_user(name, email)
+    _log.info(f'Registered user: {user_google_info.data}')
     return redirect(url_for('root'))
 
-
-@app.route('/logout')
-@app.route('/signout')
-def logout():
-    session.pop('google_token', None)
-    # TODO - remove from users_db and replace redirect with a simple message
-    return redirect(url_for('login'))
+# logout is currently not supported
+# @app.route('/logout')
+# @app.route('/signout')
+# def logout():
+#     session.pop('google_token', None)
+#     # TODO - remove from users_db and replace redirect with a simple message
+#     return redirect(url_for('login'))
