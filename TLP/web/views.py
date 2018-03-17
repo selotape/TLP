@@ -59,4 +59,5 @@ def authorized():
 @app.route('/signout')
 def logout():
     session.pop('google_token', None)
+    # TODO - remove from users_db and replace redirect with a simple message
     return redirect(url_for('login'))
