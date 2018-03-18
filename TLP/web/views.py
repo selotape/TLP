@@ -7,7 +7,7 @@ from TLP.configuration import LUNCH_TIME, POST_LUNCH_TIME, PARTY_SIZE
 from TLP.google.oauth.google_auth import google
 from TLP.users import user_store
 from TLP.util import day_cache
-from TLP.util.time import datetime_in_israel
+from TLP.util.time import hour_in_israel
 from TLP.web import app
 
 _log = logging.getLogger(__name__)
@@ -15,14 +15,14 @@ _log = logging.getLogger(__name__)
 
 @app.route('/')
 def root():
-    time = datetime_in_israel().strftime('%H:%M')
+    time = hour_in_israel(format_='%H:%M')
     if LUNCH_TIME < time < POST_LUNCH_TIME:
         return jsonify({"TLP_parties": _get_parties(),
                         "message": f"Come back again tomorrow before {LUNCH_TIME}!"})
     elif time > POST_LUNCH_TIME:
         return jsonify({'message': f"Sorry, TLP is closed for today. Come back tomorrow before {LUNCH_TIME}!"})
     elif 'google_token' in session:
-        return jsonify({'message': f"We've dispatched a team of highly trained monkeys to process your request. Come back at {LUNCH_TIME} for results!"})
+        return jsonify({'message': f"A team of highly trained monkeys was dispatched to process your request.\nCome back at {LUNCH_TIME} for results!"})
     else:
         return redirect(url_for('login'))
 
