@@ -3,7 +3,7 @@ storage.json
 
 *.log
 *.db
-
+nohup.out
 
 .idea
 
